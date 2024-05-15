@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"os"
 
 	"github.com/Binject/debug/pe"
@@ -29,7 +28,6 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Fixing permissions...")
 	stub, err := pe.Open(stubPath)
 	checkErr(err)
 	for index := range stub.Sections {

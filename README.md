@@ -2,11 +2,13 @@
 
 `go-memecats` is a project inspired by [vyrus001's go-mimikatz](https://github.com/vyrus001/go-mimikatz), which aims to replicate its functionalities while updating the codebase to utilise newer Go syntax.
 
-Features
-- Replicates core functionalities of Mimikatz.
-- Utilises AES encryption for enhanced AV evasion.
+### Features
+- Replicates core functionalities of [mimikatz](https://github.com/gentilkiwi/mimikatz).
+- Utilises AES encryption for better AV evasion.
 - Works on **Windows 11**.
-- Successfully evades detection by Windows Defender AV as of 15 May 2023.
+- Evades detection by Windows Defender AV as of 15 May 2024.
 
-### Build Process
+Note that extended use and suspicious activity will definitely still trigger anti-virus alerts!
+
+## Build Process
 `cd` into the repository and run `go generate`

