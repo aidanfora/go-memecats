@@ -106,9 +106,9 @@ func main() {
 	_, err = rand.Read(key)
 	checkErr(err)
 
-	encryptedShellcode, err := encryptAES(sc.Bytes(), key)
+	encrypted_sc, err := encryptAES(sc.Bytes(), key)
 	checkErr(err)
 
-	checkErr(os.WriteFile(path.Join(outputPath, "encrypted_sc"), encryptedShellcode, 0777))
+	checkErr(os.WriteFile(path.Join(outputPath, "encrypted_sc"), encrypted_sc, 0777))
 	checkErr(os.WriteFile(path.Join(outputPath, "key"), key, 0777))
 }

