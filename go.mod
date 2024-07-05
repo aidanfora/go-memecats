@@ -1,6 +1,6 @@
 module github.com/aidanfora/go-memecats
 
-go 1.22.3
+go 1.22.0
 
 require (
 	github.com/Binject/go-donut v0.0.0-20220908180326-fcdcc35d591c
